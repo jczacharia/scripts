@@ -1,0 +1,4 @@
+#!/bin/bash
+# snap-ls <path-relative-to-$HOME> — every snapshotted version of a file
+[[ $# -ge 1 ]] || { echo "Usage: snap-ls <path-relative-to-\$HOME>" >&2; exit 1; }
+exec ls -l /.snapshots/home-*/"$USER"/"$1" 2>/dev/null

@@ -2,9 +2,9 @@
 pkgname=jcz-scripts
 pkgver=0.1.0
 pkgrel=1
-pkgdesc="Personal CLI tooling (hwinfox, ...)"
+pkgdesc="Personal CLI tooling (hwinfox, doctor, ...)"
 arch=('any')
-depends=('hwinfo')
+depends=('hwinfo' 'pacman-contrib' 'curl' 'fzf' 'ghq')
 options=('!debug')
 
 pkgver() {

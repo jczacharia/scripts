@@ -1,0 +1,7 @@
+#!/bin/bash
+# snap-cp <path-relative-to-$HOME> [snapshot-name] — copy out of a /home snapshot into CWD
+set -euo pipefail
+[[ $# -ge 1 ]] || { echo "Usage: snap-cp <path-relative-to-\$HOME> [snapshot-name]" >&2; exit 1; }
+snap="${2:-$(ls /.snapshots 2>/dev/null | tail -1 || true)}"
+[[ -n $snap ]] || { echo "no snapshots yet" >&2; exit 1; }
+exec cp -ai --reflink=auto "/.snapshots/$snap/$USER/$1" .

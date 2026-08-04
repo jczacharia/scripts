@@ -1,0 +1,5 @@
+#!/bin/bash
+# gui — run a GUI app in a new session, detached from the terminal
+set -euo pipefail
+[[ $# -gt 0 ]] || { echo "Usage: gui <command> [arguments]" >&2; exit 1; }
+setsid -f "$@" >/dev/null 2>&1

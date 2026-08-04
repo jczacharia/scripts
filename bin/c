@@ -1,0 +1,3 @@
+#!/bin/bash
+# c — open VS Code Insiders on the given path (default: cwd)
+exec code-insiders "${@:-.}"

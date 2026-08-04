@@ -1,0 +1,6 @@
+#!/bin/bash
+# rr — pick a repo under $(ghq root) with fzf and print its path.
+# The rr() wrapper in ~/.zshrc does the cd (a child process can't cd its parent).
+set -euo pipefail
+r="$(ghq list | fzf)"
+printf '%s/%s\n' "$(ghq root)" "$r"

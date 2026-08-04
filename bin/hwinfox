@@ -1,0 +1,48 @@
+#!/bin/bash
+# hwinfox — extended hardware info logger. Reports land in ~/.local/state/hwinfox/
+set -euo pipefail
+
+# lib adapter: repo-relative (dev/symlink install) → user → system → pacman
+script_dir="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+for lib in "$script_dir/../lib/common.sh" \
+	"${XDG_DATA_HOME:-$HOME/.local/share}/jcz-scripts/common.sh" \
+	/usr/local/share/jcz-scripts/common.sh \
+	/usr/share/jcz-scripts/common.sh; do
+	[[ -f $lib ]] && source "$lib" && break
+done
+type die >/dev/null 2>&1 || { echo "ERROR: jcz-scripts common.sh not found" >&2; exit 1; }
+
+require hwinfo
+
+out="$(state_dir hwinfox)/hwinfo_$(date +%Y%m%d_%H%M%S).log"
+
+section() {
+	printf '=== %s ===\n' "$1" >>"$out"
+	shift
+	"$@" >>"$out" 2>&1 || true
+	printf '\n' >>"$out"
+}
+
+{
+	echo "=== Hardware Information Report ==="
+	echo "Generated on: $(date)"
+	echo "======================================"
+	echo
+} >"$out"
+
+# fetch tool: fastfetch preferred, neofetch fallback (archived upstream)
+if command -v fastfetch >/dev/null; then
+	section "fastfetch" fastfetch --logo none
+elif command -v neofetch >/dev/null; then
+	section "neofetch" neofetch --backend off
+fi
+
+section "CPU Information" hwinfo --cpu
+section "Disk Information" hwinfo --disk
+section "Memory Information" hwinfo --memory
+section "GPU Information" hwinfo --gfxcard
+
+echo "Report completed at: $(date)" >>"$out"
+
+log "Hardware information saved to: $out"
+log "File size: $(du -h "$out" | cut -f1)"

@@ -5,56 +5,56 @@
 #   rm -rf ~/.dotnet/sdk/<ver> (see wiki .NET#Uninstall_manually_installed_version)
 set -euo pipefail
 
-SDK_VERSIONS=(8.0.422 10.0.401 11.0.100-rc.1.26425.128)
+SDK_VERSIONS=(8.0.422 10.0.402 11.0.100-rc.2.26504.105)
 DOTNET_ROOT="$HOME/.dotnet"
 DOTNET_BIN="$DOTNET_ROOT/dotnet"
 
 sdk_requested() {
-  local version="$1"
-  local requested
+    local version="$1"
+    local requested
 
-  for requested in "${SDK_VERSIONS[@]}"; do
-    [[ "$requested" == "$version" ]] && return 0
-  done
+    for requested in "${SDK_VERSIONS[@]}"; do
+        [[ "$requested" == "$version" ]] && return 0
+    done
 
-  return 1
+    return 1
 }
 
 sdk_installed() {
-  local version="$1"
-  local dotnet_cmd=()
+    local version="$1"
+    local dotnet_cmd=()
 
-  if [[ -x "$DOTNET_BIN" ]]; then
-    dotnet_cmd=("$DOTNET_BIN")
-  elif command -v dotnet >/dev/null 2>&1; then
-    dotnet_cmd=(dotnet)
-  else
-    return 1
-  fi
+    if [[ -x "$DOTNET_BIN" ]]; then
+        dotnet_cmd=("$DOTNET_BIN")
+    elif command -v dotnet >/dev/null 2>&1; then
+        dotnet_cmd=(dotnet)
+    else
+        return 1
+    fi
 
-  "${dotnet_cmd[@]}" --list-sdks 2>/dev/null | awk '{print $1}' | grep -Fxq "$version"
+    "${dotnet_cmd[@]}" --list-sdks 2>/dev/null | awk '{print $1}' | grep -Fxq "$version"
 }
 
 remove_unmanaged_sdks() {
-  local sdk_dir="$DOTNET_ROOT/sdk"
-  local path
-  local version
+    local sdk_dir="$DOTNET_ROOT/sdk"
+    local path
+    local version
 
-  [[ -d "$sdk_dir" ]] || return 0
+    [[ -d "$sdk_dir" ]] || return 0
 
-  shopt -s nullglob
-  for path in "$sdk_dir"/*; do
-    [[ -d "$path" ]] || continue
-    version="${path##*/}"
+    shopt -s nullglob
+    for path in "$sdk_dir"/*; do
+        [[ -d "$path" ]] || continue
+        version="${path##*/}"
 
-    if sdk_requested "$version"; then
-      continue
-    fi
+        if sdk_requested "$version"; then
+            continue
+        fi
 
-    echo "Removing unmanaged SDK $version"
-    trash-put "$path"
-  done
-  shopt -u nullglob
+        echo "Removing unmanaged SDK $version"
+        trash-put "$path"
+    done
+    shopt -u nullglob
 }
 
 echo "== 1. Fetch official dotnet-install.sh =="
@@ -63,12 +63,12 @@ chmod +x /tmp/dotnet-install.sh
 
 echo "== 2. Install pinned SDKs (skips if already installed) =="
 for v in "${SDK_VERSIONS[@]}"; do
-  if sdk_installed "$v"; then
-    echo "SDK $v already installed; skipping"
-    continue
-  fi
+    if sdk_installed "$v"; then
+        echo "SDK $v already installed; skipping"
+        continue
+    fi
 
-  /tmp/dotnet-install.sh --verbose --install-dir "$DOTNET_ROOT" --version "$v"
+    /tmp/dotnet-install.sh --verbose --install-dir "$DOTNET_ROOT" --version "$v"
 done
 
 echo "== 3. Remove SDKs not in the pinned list =="
@@ -80,8 +80,8 @@ echo "== 4. Register ~/.dotnet as the global install location =="
 # IDE test runners (C# Dev Kit, Rider) launch the apphost with a scrubbed env,
 # so this file is what makes test discovery work.
 if [[ "$(cat /etc/dotnet/install_location 2>/dev/null)" != "$DOTNET_ROOT" ]]; then
-  sudo install -d /etc/dotnet
-  echo "$DOTNET_ROOT" | sudo tee /etc/dotnet/install_location >/dev/null
+    sudo install -d /etc/dotnet
+    echo "$DOTNET_ROOT" | sudo tee /etc/dotnet/install_location >/dev/null
 fi
 
 echo "== VERIFY =="
